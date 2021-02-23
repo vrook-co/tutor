@@ -29,6 +29,9 @@ spec:
       - name: config
         configMap:
           name: openedx-config
+      imagePullSecrets:
+      - name: regcred
+
 ---
 apiVersion: batch/v1
 kind: Job
@@ -63,6 +66,9 @@ spec:
       - name: config
         configMap:
           name: openedx-config
+      imagePullSecrets:
+      - name: regcred
+
 ---
 apiVersion: batch/v1
 kind: Job
@@ -78,6 +84,8 @@ spec:
       - name: mysql
         image: {{ DOCKER_IMAGE_MYSQL }}
         command: []
+      imagePullSecrets:
+      - name: regcred
 ---
 apiVersion: batch/v1
 kind: Job
@@ -101,6 +109,10 @@ spec:
             value: "{{ MONGODB_HOST }}"
           - name: MONGODB_PORT
             value: "{{ MONGODB_PORT }}"
+          - name: MONGOID_AUTH_MECH
+            value: "{{ MONGOID_AUTH_MECH }}"
+      imagePullSecrets:
+      - name: regcred
 
 {{ patch("k8s-jobs") }}
 

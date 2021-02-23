@@ -33,6 +33,7 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: caddy
+
 {% endif %}
 {% if RUN_CMS %}
 ---
@@ -79,6 +80,9 @@ spec:
         - name: config
           configMap:
             name: openedx-config
+      imagePullSecrets:
+      - name: regcred
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -121,6 +125,9 @@ spec:
         - name: config
           configMap:
             name: openedx-config
+      imagePullSecrets:
+      - name: regcred
+
 {% endif %}
 {% if RUN_FORUM %}
 ---
@@ -153,6 +160,12 @@ spec:
               value: "{{ MONGODB_HOST }}"
             - name: MONGODB_PORT
               value: "{{ MONGODB_PORT }}"
+            - name: MONGOID_AUTH_MECH
+              value: "{{ MONGOID_AUTH_MECH }}"
+      imagePullSecrets:
+      - name: regcred
+
+
 {% endif %}
 {% if RUN_LMS %}
 ---
@@ -196,6 +209,9 @@ spec:
         - name: config
           configMap:
             name: openedx-config
+      imagePullSecrets:
+      - name: regcred
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -238,6 +254,9 @@ spec:
         - name: config
           configMap:
             name: openedx-config
+      imagePullSecrets:
+      - name: regcred
+
 {% endif %}
 {% if RUN_ELASTICSEARCH %}
 ---
@@ -277,6 +296,7 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: elasticsearch
+
 {% endif %}
 {% if RUN_MONGODB %}
 ---
@@ -311,6 +331,7 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: mongodb
+
 {% endif %}
 {% if RUN_MYSQL %}
 ---
@@ -349,6 +370,7 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: mysql
+
 {% endif %}
 {% if RUN_SMTP %}
 ---
@@ -372,6 +394,7 @@ spec:
           image: {{ DOCKER_IMAGE_SMTP }}
           ports:
             - containerPort: 25
+
 {% endif %}
 ---
 apiVersion: apps/v1
@@ -403,6 +426,7 @@ spec:
           configMap:
             name: nginx-config
         {{ patch("k8s-deployments-nginx-volumes")|indent(8) }}
+
 {% if RUN_REDIS %}
 ---
 apiVersion: apps/v1
@@ -439,5 +463,6 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: redis
+
 {% endif %}
 {{ patch("k8s-deployments") }}

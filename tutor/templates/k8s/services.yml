@@ -6,6 +6,7 @@ metadata:
   name: caddy
 spec:
   type: LoadBalancer
+  loadBalancerIP: {{ STATIC_IP_FOR_CADDY }}
   ports:
     - port: 80
       name: http
