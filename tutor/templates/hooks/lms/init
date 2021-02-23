@@ -2,13 +2,17 @@ dockerize -wait tcp://{{ MYSQL_HOST }}:{{ MYSQL_PORT }} -timeout 20s
 
 echo "Loading settings $DJANGO_SETTINGS_MODULE"
 
-./manage.py lms migrate
+./manage.py lms migrate --settings tutor.production
+
+echo "Delete obsolete credentials for Android application"
 
 # Delete obsolete credentials for Android application
-./manage.py lms shell -c 'from oauth2_provider.models import get_application_model
+./manage.py lms --settings tutor.production shell -c 'from oauth2_provider.models import get_application_model
 get_application_model().objects.filter(name="android").exclude(user__username="login_service_user").delete()'
+
+echo "Create oauth credentials for Android application"
 # Create oauth credentials for Android application
-./manage.py lms create_dot_application \
+./manage.py lms --settings tutor.production create_dot_application \
     --client-id android \
     --client-secret {{ ANDROID_OAUTH2_SECRET }} \
     --grant-type password \
@@ -16,6 +20,8 @@ get_application_model().objects.filter(name="android").exclude(user__username="l
     --update \
     android \
     login_service_user
+
+echo "Fix incorrect uploaded file path"
 
 # Fix incorrect uploaded file path
 if [ -d /openedx/data/uploads/ ]; then
@@ -26,6 +32,8 @@ if [ -d /openedx/data/uploads/ ]; then
   fi
 fi
 
+
+echo "Create waffle switches to enable some features, if they have not been explicitely defined before Completion tracking: add green ticks to every completed unit"
 # Create waffle switches to enable some features, if they have not been explicitely defined before
 # Completion tracking: add green ticks to every completed unit
-(./manage.py lms waffle_switch --list | grep completion.enable_completion_tracking) || ./manage.py lms waffle_switch --create completion.enable_completion_tracking on
+(./manage.py lms --settings tutor.production waffle_switch --list | grep completion.enable_completion_tracking) || ./manage.py lms --settings tutor.production waffle_switch --create completion.enable_completion_tracking on
